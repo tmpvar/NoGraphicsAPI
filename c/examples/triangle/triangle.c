@@ -53,7 +53,8 @@ static LRESULT CALLBACK windowProc(HWND hwnd, UINT message, WPARAM wparam, LPARA
     }
 }
 
-// Fills desc->win32 with the new window. Returns false on failure.
+// Fills desc->win32 with a new hidden window. The caller shows it after the first frame is presented, so the default
+// white client area never appears. Returns false on failure.
 static bool openWindow(GPUDeviceDesc* desc, const char* title, uint32_t width, uint32_t height) {
     const HINSTANCE instance = GetModuleHandleA(NULL);
     const WNDCLASSEXA windowClass = {
@@ -85,8 +86,6 @@ static bool openWindow(GPUDeviceDesc* desc, const char* title, uint32_t width, u
         NULL
     );
     if (!hwnd) return false;
-    ShowWindow(hwnd, SW_SHOWDEFAULT);
-    UpdateWindow(hwnd);
     desc->win32.hwnd = hwnd;
     desc->win32.hinstance = instance;
     return true;
@@ -174,6 +173,7 @@ int main(void) {
         const GPUSubmitDesc submit =
             {.commands = GPUCommandBuffers(commands), .waits = {NULL, 0}, .completion = latestCompletion};
         GPUDeviceSubmitAndPresent(device, &submit);
+        if (!IsWindowVisible(window)) ShowWindow(window, SW_SHOWDEFAULT);
     }
 
     GPUDeviceWaitIdle(device);

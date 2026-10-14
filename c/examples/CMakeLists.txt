@@ -16,3 +16,4 @@ function(GPU_add_example target)
 endfunction()
 
 add_subdirectory(triangle)
+add_subdirectory(clear)
